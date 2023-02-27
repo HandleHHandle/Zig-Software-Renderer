@@ -8,7 +8,9 @@ pub const Display = struct {
     width: c_int,
     height: c_int,
     window: *c.SDL_Window,
-    surface: *c.SDL_Surface,
+    renderer: *c.SDL_Renderer,
+    texture: *c.SDL_Texture,
+    format: u32,
     framebuffer: Bitmap,
     open: bool,
 
@@ -28,10 +30,18 @@ pub const Display = struct {
             return error.SDLWindowCreationFailed;
         };
 
-        var surface = c.SDL_GetWindowSurface(window) orelse {
-            c.SDL_Log("Failed to obtain window surface: %s", c.SDL_GetError());
-            return error.SDLSurfaceNull;
+        var renderer = c.SDL_CreateRenderer(window, -1, c.SDL_RENDERER_ACCELERATED) orelse {
+            c.SDL_Log("Unable to create renderer: %s", c.SDL_GetError());
+            return error.SDLRendererCreationFailed;
         };
+
+        var texture = c.SDL_CreateTexture(renderer, c.SDL_PIXELFORMAT_ARGB8888, c.SDL_TEXTUREACCESS_STREAMING, width,height) orelse {
+            c.SDL_Log("Failed to create texture: %s", c.SDL_GetError());
+            return error.SDLTextureNull;
+        };
+
+        var format: u32 = undefined;
+        _ = c.SDL_QueryTexture(texture, &format, null,null,null);
 
         var bitmap = try Bitmap.create(allocator, width,height);
 
@@ -39,7 +49,9 @@ pub const Display = struct {
             .width = width,
             .height = height,
             .window = window,
-            .surface = surface,
+            .renderer = renderer,
+            .texture = texture,
+            .format = format,
             .framebuffer = bitmap,
             .open = true
         };
@@ -47,6 +59,8 @@ pub const Display = struct {
 
     pub fn destroy(self: *Self) void {
         self.framebuffer.destroy();
+        c.SDL_DestroyTexture(self.texture);
+        c.SDL_DestroyRenderer(self.renderer);
         c.SDL_DestroyWindow(self.window);
         c.SDL_Quit();
     }
@@ -68,22 +82,28 @@ pub const Display = struct {
     }
 
     pub fn swap(self: *Self) void {
-        _ = c.SDL_LockSurface(self.surface);
+        var pixels: ?*anyopaque = null;
+        var pitch: i32 = 0;
+
+        if(c.SDL_LockTexture(self.texture, null, &pixels, &pitch) != 0) {
+            c.SDL_Log("Failed to lock texture: %s", c.SDL_GetError());
+            return;
+        }
+
+        var upixels = @ptrCast([*]u32, @alignCast(4, pixels.?));
 
         var y: usize = 0;
         while(y < self.height) : (y += 1) {
             var x: usize = 0;
             while(x < self.width) : (x += 1) {
-                var target_pixel = @ptrCast(*c.Uint32, @alignCast(4, &@ptrCast([*c]u8, self.surface.pixels.?)[
-                    y * @intCast(usize, self.surface.pitch) + x * self.surface.format.*.BytesPerPixel
-                ]));
-
-                target_pixel.* = self.framebuffer.getPixelInt(x,y);
+                var index: usize = y * @divExact(@intCast(u32, pitch), @sizeOf(u32)) + x;
+                upixels[index] = self.framebuffer.getPixelInt(x,y);
             }
         }
+        _ = c.SDL_UnlockTexture(self.texture);
 
-        _ = c.SDL_UnlockSurface(self.surface);
+        _ = c.SDL_RenderCopy(self.renderer, self.texture, null,null);
 
-        _ = c.SDL_UpdateWindowSurface(self.window);
+        c.SDL_RenderPresent(self.renderer);
     }
 };
