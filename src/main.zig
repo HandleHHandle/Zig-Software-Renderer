@@ -5,6 +5,7 @@ const Display = @import("display.zig").Display;
 const Bitmap = @import("bitmap.zig").Bitmap;
 const Stars3D = @import("stars3d.zig").Stars3D;
 const Vertex = @import("vertex.zig").Vertex;
+const Mesh = @import("mesh.zig").Mesh;
 const Vec4 = @import("vec4.zig").Vec4;
 const Mat4 = @import("mat4.zig").Mat4;
 
@@ -27,18 +28,8 @@ pub fn main() !void {
     var texture = try Bitmap.loadImage(allocator, "resources/brick.png");
     defer texture.destroy();
 
-    var v1 = Vertex.create(
-        Vec4.create(-1,-1,0,1),
-        Vec4.create(0.0,0.0,0.0,0.0)
-    );
-    var v2 = Vertex.create(
-        Vec4.create(0,1,0,1),
-        Vec4.create(0.5,1.0,0.0,0.0)
-    );
-    var v3 = Vertex.create(
-        Vec4.create(1,-1,0,1),
-        Vec4.create(1.0,0.0,0.0,0.0)
-    );
+    var mesh = try Mesh.create(allocator, "resources/icosphere.obj");
+    defer mesh.destroy();
 
     var projection = Mat4.initPerspective(
         std.math.degreesToRadians(f32, 70.0),
@@ -66,12 +57,7 @@ pub fn main() !void {
         var rotation = Mat4.initRotation(0.0,rotCounter,0.0);
         var transform = projection.mul(translation.mul(rotation));
 
-        display.framebuffer.fillTriangle(
-            v3.transform(transform),
-            v2.transform(transform),
-            v1.transform(transform),
-            texture
-        );
+        display.framebuffer.drawMesh(mesh, transform, texture);
 
         display.swap();
     }

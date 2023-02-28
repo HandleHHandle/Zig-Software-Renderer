@@ -5,6 +5,7 @@ const Edge = @import("edge.zig").Edge;
 const Gradients = @import("gradients.zig").Gradients;
 const Vec4 = @import("vec4.zig").Vec4;
 const Mat4 = @import("mat4.zig").Mat4;
+const Mesh = @import("mesh.zig").Mesh;
 
 pub const RenderContext = struct {
     const Self = @This();
@@ -23,11 +24,25 @@ pub const RenderContext = struct {
         self.bitmap.destroy();
     }
 
+    pub fn drawMesh(self: *Self, mesh: Mesh, transform: Mat4, texture: Bitmap) void {
+        var i: usize = 0;
+        while(i < mesh.indices.items.len) : (i += 3) {
+            self.fillTriangle(
+                mesh.vertices.items[mesh.indices.items[i]].transform(transform),
+                mesh.vertices.items[mesh.indices.items[i+1]].transform(transform),
+                mesh.vertices.items[mesh.indices.items[i+2]].transform(transform),
+                texture
+            );
+        }
+    }
+
     pub fn fillTriangle(self: *Self, v1: Vertex,v2: Vertex,v3: Vertex, texture: Bitmap) void {
         var screenSpaceTransform = Mat4.initScreenSpaceTransform(@intToFloat(f32, self.bitmap.width) / 2.0, @intToFloat(f32, self.bitmap.height) / 2.0);
         var minY: Vertex = v1.transform(screenSpaceTransform).perspectiveDivide();
         var midY: Vertex = v2.transform(screenSpaceTransform).perspectiveDivide();
         var maxY: Vertex = v3.transform(screenSpaceTransform).perspectiveDivide();
+
+        if(minY.triArea2(maxY,midY) >= 0) return;
 
         if(maxY.pos.y < midY.pos.y) {
             var temp = maxY;

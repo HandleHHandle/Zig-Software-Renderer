@@ -6,16 +6,18 @@ pub const Vertex = struct {
 
     pos: Vec4,
     texCoords: Vec4,
+    normal: Vec4,
 
-    pub fn create(pos: Vec4,texCoords: Vec4) Self {
+    pub fn create(pos: Vec4,texCoords: Vec4,normal: Vec4) Self {
         return Self {
             .pos = pos,
             .texCoords = texCoords,
+            .normal = normal,
         };
     }
 
     pub fn transform(self: *const Self, trans: Mat4) Self {
-        return Self.create(trans.transform(self.pos), self.texCoords);
+        return Self.create(trans.transform(self.pos), self.texCoords,self.normal);
     }
 
     pub fn perspectiveDivide(self: *const Self) Self {
@@ -24,7 +26,7 @@ pub const Vertex = struct {
             self.pos.y / self.pos.w,
             self.pos.z / self.pos.w,
             self.pos.w
-        ), self.texCoords);
+        ), self.texCoords,self.normal);
     }
 
     pub fn triArea2(self: *Self, b: Vertex,c: Vertex) f32 {
