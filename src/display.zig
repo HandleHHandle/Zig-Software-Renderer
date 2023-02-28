@@ -36,7 +36,7 @@ pub const Display = struct {
             return error.SDLRendererCreationFailed;
         };
 
-        var texture = c.SDL_CreateTexture(renderer, c.SDL_PIXELFORMAT_ARGB8888, c.SDL_TEXTUREACCESS_STREAMING, width,height) orelse {
+        var texture = c.SDL_CreateTexture(renderer, c.SDL_PIXELFORMAT_RGBA8888, c.SDL_TEXTUREACCESS_STREAMING, width,height) orelse {
             c.SDL_Log("Failed to create texture: %s", c.SDL_GetError());
             return error.SDLTextureNull;
         };

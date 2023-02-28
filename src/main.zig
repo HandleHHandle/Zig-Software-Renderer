@@ -24,25 +24,8 @@ pub fn main() !void {
     var stars = try Stars3D.create(allocator, 4096, 64.0,20.0);
     defer stars.destroy();
 
-    var texture = try Bitmap.create(allocator, 32,32);
+    var texture = try Bitmap.loadImage(allocator, "resources/brick.png");
     defer texture.destroy();
-
-    var prng = std.rand.DefaultPrng.init(0);
-    var rnd = prng.random();
-
-    var j: usize = 0;
-    while(j < texture.height) : (j += 1) {
-        var i: usize = 0;
-        while(i < texture.width) : (i += 1) {
-            texture.drawPixel(
-                i,j,
-                @floatToInt(u8, rnd.float(f32) * 255.0 + 0.5),
-                @floatToInt(u8, rnd.float(f32) * 255.0 + 0.5),
-                @floatToInt(u8, rnd.float(f32) * 255.0 + 0.5),
-                @floatToInt(u8, rnd.float(f32) * 255.0 + 0.5),
-            );
-        }
-    }
 
     var v1 = Vertex.create(
         Vec4.create(-1,-1,0,1),
@@ -72,7 +55,7 @@ pub fn main() !void {
         currentTime = std.time.milliTimestamp();
         deltaTime = @intToFloat(f32, currentTime - previousTime) / 1000.0;
 
-        std.debug.print("Frame rate: {d}\n", .{1.0 / deltaTime});
+        //std.debug.print("Frame rate: {d}\n", .{1.0 / deltaTime});
 
         display.input();
     

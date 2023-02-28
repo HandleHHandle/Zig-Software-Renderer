@@ -14,6 +14,8 @@ pub const Edge = struct {
     texCoordXStep: f32,
     texCoordY: f32,
     texCoordYStep: f32,
+    oneOverZ: f32,
+    oneOverZStep: f32,
 
     pub fn create(gradients: Gradients, minY: Vertex,maxY: Vertex, minYIndex: usize) Self {
         var yStart = @floatToInt(i32, @ceil(minY.pos.y));
@@ -33,6 +35,9 @@ pub const Edge = struct {
         var texCoordY = gradients.texCoordY[minYIndex] + gradients.texCoordYXStep * xPrestep + gradients.texCoordYYStep * yPrestep;
         var texCoordYStep = gradients.texCoordYYStep + gradients.texCoordYXStep * xStep;
 
+        var oneOverZ = gradients.oneOverZ[minYIndex] + gradients.oneOverZXStep * xPrestep + gradients.oneOverZYStep * yPrestep;
+        var oneOverZStep = gradients.oneOverZYStep + gradients.oneOverZXStep * xStep;
+
         return Self {
             .x = x,
             .xStep = xStep,
@@ -42,6 +47,8 @@ pub const Edge = struct {
             .texCoordXStep = texCoordXStep,
             .texCoordY = texCoordY,
             .texCoordYStep = texCoordYStep,
+            .oneOverZ = oneOverZ,
+            .oneOverZStep = oneOverZStep,
         };
     }
 
@@ -49,5 +56,6 @@ pub const Edge = struct {
         self.x += self.xStep;
         self.texCoordX += self.texCoordXStep;
         self.texCoordY += self.texCoordYStep;
+        self.oneOverZ += self.oneOverZStep;
     }
 };

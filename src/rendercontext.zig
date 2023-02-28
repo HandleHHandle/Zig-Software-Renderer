@@ -56,11 +56,11 @@ pub const RenderContext = struct {
         var topToMiddle: Edge = Edge.create(gradients, minY,midY, 0);
         var midToBottom: Edge = Edge.create(gradients, midY,maxY, 1);
 
-        self.scanEdges(&gradients, &topToBottom,&topToMiddle, handedness, texture);
-        self.scanEdges(&gradients, &topToBottom,&midToBottom, handedness, texture);
+        self.scanEdges(&topToBottom,&topToMiddle, handedness, texture);
+        self.scanEdges(&topToBottom,&midToBottom, handedness, texture);
     }
 
-    pub fn scanEdges(self: *Self, gradients: *Gradients, a: *Edge,b: *Edge, handedness: bool, texture: Bitmap) void {
+    pub fn scanEdges(self: *Self, a: *Edge,b: *Edge, handedness: bool, texture: Bitmap) void {
         var left = a;
         var right = b;
         if(handedness) {
@@ -72,28 +72,36 @@ pub const RenderContext = struct {
         var yEnd = b.yEnd;
         var i: i32 = yStart;
         while(i < yEnd) : (i += 1) {
-            self.drawScanLine(gradients, left,right, i, texture);
+            self.drawScanLine(left,right, i, texture);
             left.step();
             right.step();
         }
     }
 
-    pub fn drawScanLine(self: *Self, gradients: *Gradients, left: *Edge,right: *Edge, j: i32, texture: Bitmap) void {
+    pub fn drawScanLine(self: *Self, left: *Edge,right: *Edge, j: i32, texture: Bitmap) void {
         var xMin = @floatToInt(i32, @ceil(left.x));
         var xMax = @floatToInt(i32, @ceil(right.x));
         var xPrestep = @intToFloat(f32, xMin) - left.x;
 
-        var texCoordX = left.texCoordX + gradients.texCoordXXStep * xPrestep;
-        var texCoordY = left.texCoordY + gradients.texCoordYXStep * xPrestep;
+        var xDist = right.x - left.x;
+        var texCoordXXStep = (right.texCoordX - left.texCoordX) / xDist;
+        var texCoordYXStep = (right.texCoordY - left.texCoordY) / xDist;
+        var oneOverZXStep = (right.oneOverZ - left.oneOverZ) / xDist;
+
+        var texCoordX = left.texCoordX + texCoordXXStep * xPrestep;
+        var texCoordY = left.texCoordY + texCoordYXStep * xPrestep;
+        var oneOverZ = left.oneOverZ + oneOverZXStep * xPrestep;
 
         var i: i32 = xMin;
         while(i < xMax) : (i += 1) {
-            var srcX: usize = @floatToInt(usize, texCoordX * @intToFloat(f32, texture.width - 1) + 0.5);
-            var srcY: usize = @floatToInt(usize, texCoordY * @intToFloat(f32, texture.height - 1) + 0.5);
+            var z = 1.0 / oneOverZ;
+            var srcX = @floatToInt(usize, (texCoordX * z) * @intToFloat(f32, texture.width - 1) + 0.5);
+            var srcY = @floatToInt(usize, (texCoordY * z) * @intToFloat(f32, texture.height - 1) + 0.5);
 
             self.bitmap.copyPixel(@intCast(usize, i),@intCast(usize, j), srcX,srcY, texture);
-            texCoordX += gradients.texCoordXXStep;
-            texCoordY += gradients.texCoordYXStep;
+            oneOverZ += oneOverZXStep;
+            texCoordX += texCoordXXStep;
+            texCoordY += texCoordYXStep;
         }
     }
 };

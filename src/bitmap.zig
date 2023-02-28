@@ -26,14 +26,14 @@ pub const Bitmap = struct {
         var width: i32 = 0;
         var height: i32 = 0;
         var channels: i32 = 0;
-        c.stbi_flip_vertically_on_load(1);
+        c.stbi_set_flip_vertically_on_load(1);
         var data = c.stbi_load(path, &width,&height,&channels, 4);
         if(data == null) {
             return error.FailedToLoadBitmap;
         }
         defer c.stbi_image_free(data);
 
-        var length: usize = @intCast(usize, width * height * channels);
+        var length: usize = @intCast(usize, width * height * 4);
         var components = try allocator.alloc(u8, length);
         @memcpy(components.ptr, data, length);
 
@@ -57,20 +57,20 @@ pub const Bitmap = struct {
 
     pub fn drawPixel(self: *Self, x: usize,y: usize, a: u8,r: u8,g: u8,b: u8) void {
         var index: usize = (x + y * @intCast(usize, self.width)) * 4;
-        self.components.ptr[index] = a;
-        self.components.ptr[index + 1] = r;
-        self.components.ptr[index + 2] = g;
-        self.components.ptr[index + 3] = b;
+        self.components.ptr[index] = r;
+        self.components.ptr[index + 1] = g;
+        self.components.ptr[index + 2] = b;
+        self.components.ptr[index + 3] = a;
     }
 
     pub fn getPixelInt(self: *Self, x: usize,y: usize) u32 {
         var index: usize = (x + y * @intCast(usize, self.width)) * 4;
-        var a = @intCast(u32, self.components.ptr[index]) << 24;
-        var r = @intCast(u32, self.components.ptr[index+1]) << 16;
-        var g = @intCast(u32, self.components.ptr[index+2]) << 8;
-        var b = @intCast(u32, self.components.ptr[index+3]);
+        var r = @intCast(u32, self.components.ptr[index]) << 24;
+        var g = @intCast(u32, self.components.ptr[index+1]) << 16;
+        var b = @intCast(u32, self.components.ptr[index+2]) << 8;
+        var a = @intCast(u32, self.components.ptr[index+3]);
 
-        return a | r | g | b;
+        return r | g | b | a;
     }
 
     // Not quite sure yet if slices are passed by reference so if there are any errors check here
