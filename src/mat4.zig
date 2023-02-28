@@ -7,6 +7,7 @@ pub const Mat4 = struct {
     values: [16]f32,
 
     pub fn create() Self {
+        // Was this what fixed it?????
         var values = [16]f32 {
             0.0,0.0,0.0,0.0,
             0.0,0.0,0.0,0.0,

@@ -5,30 +5,26 @@ pub const Vertex = struct {
     const Self = @This();
 
     pos: Vec4,
+    texCoords: Vec4,
 
-    pub fn create(x: f32,y: f32,z: f32) Self {
+    pub fn create(pos: Vec4,texCoords: Vec4) Self {
         return Self {
-            .pos = Vec4.create(x,y,z, 1.0),
-        };
-    }
-
-    pub fn fromVec(vec: Vec4) Self {
-        return Self {
-            .pos = vec,
+            .pos = pos,
+            .texCoords = texCoords,
         };
     }
 
     pub fn transform(self: *const Self, trans: Mat4) Self {
-        return Self.fromVec(trans.transform(self.pos));
+        return Self.create(trans.transform(self.pos), self.texCoords);
     }
 
     pub fn perspectiveDivide(self: *const Self) Self {
-        return Self.fromVec(Vec4.create(
+        return Self.create(Vec4.create(
             self.pos.x / self.pos.w,
             self.pos.y / self.pos.w,
             self.pos.z / self.pos.w,
             self.pos.w
-        ));
+        ), self.texCoords);
     }
 
     pub fn triArea2(self: *Self, b: Vertex,c: Vertex) f32 {

@@ -24,9 +24,38 @@ pub fn main() !void {
     var stars = try Stars3D.create(allocator, 4096, 64.0,20.0);
     defer stars.destroy();
 
-    var v1 = Vertex.create(-1,-1,0);
-    var v2 = Vertex.create(0,1,0);
-    var v3 = Vertex.create(1,-1,0);
+    var texture = try Bitmap.create(allocator, 32,32);
+    defer texture.destroy();
+
+    var prng = std.rand.DefaultPrng.init(0);
+    var rnd = prng.random();
+
+    var j: usize = 0;
+    while(j < texture.height) : (j += 1) {
+        var i: usize = 0;
+        while(i < texture.width) : (i += 1) {
+            texture.drawPixel(
+                i,j,
+                @floatToInt(u8, rnd.float(f32) * 255.0 + 0.5),
+                @floatToInt(u8, rnd.float(f32) * 255.0 + 0.5),
+                @floatToInt(u8, rnd.float(f32) * 255.0 + 0.5),
+                @floatToInt(u8, rnd.float(f32) * 255.0 + 0.5),
+            );
+        }
+    }
+
+    var v1 = Vertex.create(
+        Vec4.create(-1,-1,0,1),
+        Vec4.create(0.0,0.0,0.0,0.0)
+    );
+    var v2 = Vertex.create(
+        Vec4.create(0,1,0,1),
+        Vec4.create(0.5,1.0,0.0,0.0)
+    );
+    var v3 = Vertex.create(
+        Vec4.create(1,-1,0,1),
+        Vec4.create(1.0,0.0,0.0,0.0)
+    );
 
     var projection = Mat4.initPerspective(
         std.math.degreesToRadians(f32, 70.0),
@@ -57,7 +86,8 @@ pub fn main() !void {
         display.framebuffer.fillTriangle(
             v3.transform(transform),
             v2.transform(transform),
-            v1.transform(transform)
+            v1.transform(transform),
+            texture
         );
 
         display.swap();

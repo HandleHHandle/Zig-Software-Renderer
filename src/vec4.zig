@@ -18,19 +18,19 @@ pub const Vec4 = struct {
         };
     }
 
-    pub fn length(self: *Self) f32 {
+    pub fn length(self: *const Self) f32 {
         return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w);
     }
 
-    pub fn max(self: *Self) f32 {
+    pub fn max(self: *const Self) f32 {
         return math.max(math.max(self.x,self.y), math.max(self.z,self.w));
     }
 
-    pub fn dot(self: *Self, r: Self) f32 {
+    pub fn dot(self: *const Self, r: Self) f32 {
         return self.x * r.x + self.y * r.y + self.z * r.z + self.w * r.w;
     }
 
-    pub fn cross(self: *Self, r: Self) Self {
+    pub fn cross(self: *const Self, r: Self) Self {
         var x = self.y * r.z - self.z * r.y;
         var y = self.z * r.x - self.x * r.z;
         var z = self.x * r.y - self.y * r.x;
@@ -38,13 +38,13 @@ pub const Vec4 = struct {
         return Self.create(x,y,z, 0.0);
     }
 
-    pub fn normalized(self: *Self) Self {
+    pub fn normalized(self: *const Self) Self {
         var len = self.length();
 
         return Self.create(self.x / len,self.y / len,self.z / len,self.w / len);
     }
 
-    pub fn rotate(self: *Self, axis: Self,angle: f32) Self {
+    pub fn rotate(self: *const Self, axis: Self,angle: f32) Self {
         var sinAngle: f32 = math.sin(-angle);
         var cosAngle: f32 = math.cos(-angle);
 
@@ -53,43 +53,43 @@ pub const Vec4 = struct {
                 axis.scale(self.dot(axis.scale(1.0 - cosAngle)))));
     }
 
-    pub fn lerp(self: *Self, dest: Self, lerpFactor: f32) Self {
+    pub fn lerp(self: *const Self, dest: Self, lerpFactor: f32) Self {
         return dest.sub(self).scale(lerpFactor).add(self);
     }
 
-    pub fn add(self: *Self, r: Self) Self {
+    pub fn add(self: *const Self, r: Self) Self {
         return Self.create(self.x + r.x,self.y + r.y,self.z + r.z,self.w + r.w);
     }
 
-    pub fn addScalar(self: *Self, r: f32) Self {
+    pub fn addScalar(self: *const Self, r: f32) Self {
         return Self.create(self.x + r,self.y + r,self.z + r,self.w + r);
     }
 
-    pub fn sub(self: *Self, r: Self) Self {
+    pub fn sub(self: *const Self, r: Self) Self {
         return Self.create(self.x - r.x,self.y - r.y,self.z - r.z,self.w - r.w);
     }
 
-    pub fn subScalar(self: *Self, r: f32) Self {
+    pub fn subScalar(self: *const Self, r: f32) Self {
         return Self.create(self.x - r,self.y - r,self.z - r,self.w - r);
     }
 
-    pub fn mul(self: *Self, r: Self) Self {
+    pub fn mul(self: *const Self, r: Self) Self {
         return Self.create(self.x * r.x,self.y * r.y,self.z * r.z,self.w * r.w);
     }
 
-    pub fn scale(self: *Self, r: f32) Self {
+    pub fn scale(self: *const Self, r: f32) Self {
         return Self.create(self.x * r,self.y * r,self.z * r,self.w * r);
     }
 
-    pub fn div(self: *Self, r: Self) Self {
+    pub fn div(self: *const Self, r: Self) Self {
         return Self.create(self.x / r.x,self.y / r.y,self.z / r.z,self.w / r.w);
     }
 
-    pub fn abs(self: *Self) Self {
+    pub fn abs(self: *const Self) Self {
         return Self.create(math.fabs(self.x),math.fabs(self.y),math.fabs(self.z),math.fabs(self.w));
     }
 
-    pub fn equals(self: *Self, r: Self) bool {
+    pub fn equals(self: *const Self, r: Self) bool {
         return self.x == r.x and self.y == r.y and self.z == r.z and self.w == r.w;
     }
 
