@@ -54,6 +54,8 @@ pub const Stars3D = struct {
     pub fn updateAndRender(self: *Self, target: *Bitmap, delta: f32) void {
         target.clear(0);
 
+        var tanHalfFOV = std.math.tan(std.math.degreesToRadians(f32, 90.0 / 2.0));
+
         var halfWidth: f32 = @intToFloat(f32, target.width) / 2.0;
         var halfHeight: f32 = @intToFloat(f32, target.height) / 2.0;
 
@@ -65,8 +67,8 @@ pub const Stars3D = struct {
                 self.initStar(i);
             }
 
-            var fx = (self.starsX[i] / self.starsZ[i]) * halfWidth + halfWidth;
-            var fy = (self.starsY[i] / self.starsZ[i]) * halfHeight + halfHeight;
+            var fx = (self.starsX[i] / (self.starsZ[i] * tanHalfFOV)) * halfWidth + halfWidth;
+            var fy = (self.starsY[i] / (self.starsZ[i] * tanHalfFOV)) * halfHeight + halfHeight;
 
             if(fx < 0 or fx >= @intToFloat(f32, target.width) or fy < 0 or fy >= @intToFloat(f32, target.height)) {
                 self.initStar(i);

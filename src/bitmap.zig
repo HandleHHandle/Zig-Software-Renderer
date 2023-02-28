@@ -10,7 +10,8 @@ pub const Bitmap = struct {
     
     pub fn create(allocator: std.mem.Allocator, width: i32,height: i32) !Self {
         var components = try allocator.alloc(u8, @intCast(usize, width * height * 4));
-        std.mem.set(u8, components, 0);
+        //std.mem.set(u8, components, 0);
+        @memset(components.ptr, 0, components.len);
 
         return Self {
             .allocator = allocator,

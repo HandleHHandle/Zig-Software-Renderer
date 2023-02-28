@@ -1,6 +1,7 @@
 const std = @import("std");
 const c = @import("c.zig");
 const Bitmap = @import("bitmap.zig").Bitmap;
+const RenderContext = @import("rendercontext.zig").RenderContext;
 
 pub const Display = struct {
     const Self = @This();
@@ -11,7 +12,7 @@ pub const Display = struct {
     renderer: *c.SDL_Renderer,
     texture: *c.SDL_Texture,
     format: u32,
-    framebuffer: Bitmap,
+    framebuffer: RenderContext,
     open: bool,
 
     pub fn create(allocator: std.mem.Allocator, title: [*]const u8, width: c_int,height: c_int) !Self {
@@ -43,7 +44,7 @@ pub const Display = struct {
         var format: u32 = undefined;
         _ = c.SDL_QueryTexture(texture, &format, null,null,null);
 
-        var bitmap = try Bitmap.create(allocator, width,height);
+        var framebuffer = try RenderContext.create(allocator, width,height);
 
         return Self {
             .width = width,
@@ -52,7 +53,7 @@ pub const Display = struct {
             .renderer = renderer,
             .texture = texture,
             .format = format,
-            .framebuffer = bitmap,
+            .framebuffer = framebuffer,
             .open = true
         };
     }
@@ -97,7 +98,7 @@ pub const Display = struct {
             var x: usize = 0;
             while(x < self.width) : (x += 1) {
                 var index: usize = y * @divExact(@intCast(u32, pitch), @sizeOf(u32)) + x;
-                upixels[index] = self.framebuffer.getPixelInt(x,y);
+                upixels[index] = self.framebuffer.bitmap.getPixelInt(x,y);
             }
         }
         _ = c.SDL_UnlockTexture(self.texture);
