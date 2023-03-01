@@ -1,4 +1,4 @@
-https://raw.githubusercontent.com/HandleHHandle/Zig-Software-Renderer/master/image.png
+![Screenshot](image.png)
 
 ### Zig Software Renderer
 A basic software renderer written in Zig.
