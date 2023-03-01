@@ -85,5 +85,10 @@ pub const Bitmap = struct {
         self.components[dstIndex+1] = src.components[srcIndex+1];
         self.components[dstIndex+2] = src.components[srcIndex+2];
         self.components[dstIndex+3] = src.components[srcIndex+3];
+
+        //self.components[dstIndex] = @floatToInt(u8, @intToFloat(f32, src.components[srcIndex] & 0xFF) * lightAmount);
+        //self.components[dstIndex+1] = @floatToInt(u8, @intToFloat(f32, src.components[srcIndex+1] & 0xFF) * lightAmount);
+        //self.components[dstIndex+2] = @floatToInt(u8, @intToFloat(f32, src.components[srcIndex+2] & 0xFF) * lightAmount);
+        //self.components[dstIndex+3] = @floatToInt(u8, @intToFloat(f32, src.components[srcIndex+3] & 0xFF) * lightAmount);
     }
 };

@@ -52,8 +52,6 @@ pub const Stars3D = struct {
     }
 
     pub fn updateAndRender(self: *Self, target: *Bitmap, delta: f32) void {
-        target.clear(0);
-
         var tanHalfFOV = std.math.tan(std.math.degreesToRadians(f32, 90.0 / 2.0));
 
         var halfWidth: f32 = @intToFloat(f32, target.width) / 2.0;

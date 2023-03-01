@@ -54,7 +54,7 @@ pub const Vec4 = struct {
     }
 
     pub fn lerp(self: *const Self, dest: Self, lerpFactor: f32) Self {
-        return dest.sub(self).scale(lerpFactor).add(self);
+        return dest.sub(self.*).scale(lerpFactor).add(self.*);
     }
 
     pub fn add(self: *const Self, r: Self) Self {

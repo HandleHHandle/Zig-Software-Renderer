@@ -1,5 +1,6 @@
 const Vec4 = @import("vec4.zig").Vec4;
 const Mat4 = @import("mat4.zig").Mat4;
+const math = @import("std").math;
 
 pub const Vertex = struct {
     const Self = @This();
@@ -37,5 +38,29 @@ pub const Vertex = struct {
         var y2 = c.pos.y - self.pos.y;
 
         return (x1 * y2 - x2 * y1);
+    }
+
+    pub fn lerp(self: *const Self, other: Self, amount: f32) Self {
+        return Self.create(
+            self.pos.lerp(other.pos, amount),
+            self.texCoords.lerp(other.texCoords, amount),
+            self.normal.lerp(other.normal, amount)
+        );
+    }
+
+    pub fn isInsideViewFrustum(self: *const Self) bool {
+        return math.fabs(self.pos.x) <= math.fabs(self.pos.w) and
+            math.fabs(self.pos.y) <= math.fabs(self.pos.w) and
+            math.fabs(self.pos.z) <= math.fabs(self.pos.w);
+    }
+
+    pub fn get(self: *const Self, index: usize) f32 {
+        switch(index) {
+            0 => return self.pos.x,
+            1 => return self.pos.y,
+            2 => return self.pos.z,
+            3 => return self.pos.w,
+            else => return math.floatMax(f32),
+        }
     }
 };

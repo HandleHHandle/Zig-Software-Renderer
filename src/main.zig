@@ -46,18 +46,21 @@ pub fn main() !void {
         currentTime = std.time.milliTimestamp();
         deltaTime = @intToFloat(f32, currentTime - previousTime) / 1000.0;
 
-        //std.debug.print("Frame rate: {d}\n", .{1.0 / deltaTime});
+        std.debug.print("Frame rate: {d}\n", .{1.0 / deltaTime});
 
         display.input();
+
+        display.framebuffer.bitmap.clear(0);
+        display.framebuffer.clearDepthBuffer();
     
         stars.updateAndRender(&display.framebuffer.bitmap, deltaTime);
 
         rotCounter += deltaTime;
-        var translation = Mat4.initTranslation(0.0,0.0,3.0);
+        var translation = Mat4.initTranslation(0.0,0.0,3.0 - 3.0 * std.math.sin(rotCounter));
         var rotation = Mat4.initRotation(0.0,rotCounter,0.0);
         var transform = projection.mul(translation.mul(rotation));
 
-        display.framebuffer.drawMesh(mesh, transform, texture);
+        try display.framebuffer.drawMesh(mesh, transform, texture);
 
         display.swap();
     }

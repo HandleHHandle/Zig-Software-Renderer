@@ -34,9 +34,16 @@ pub const Mat4 = struct {
     }
 
     pub fn initScreenSpaceTransform(halfWidth: f32,halfHeight: f32) Self {
+        //var values = [16]f32 {
+        //   halfWidth, 0.0, 0.0, halfWidth,
+        //    0.0, -halfHeight, 0.0, halfHeight,
+        //    0.0,0.0,1.0,0.0,
+        //    0.0,0.0,0.0,1.0
+        //};
+        
         var values = [16]f32 {
-            halfWidth, 0.0, 0.0, halfWidth,
-            0.0, -halfHeight, 0.0, halfHeight,
+            halfWidth,0.0,0.0,halfWidth - 0.5,
+            0.0,-halfHeight,0.0,halfHeight - 0.5,
             0.0,0.0,1.0,0.0,
             0.0,0.0,0.0,1.0
         };

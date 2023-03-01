@@ -16,6 +16,10 @@ pub const Edge = struct {
     texCoordYStep: f32,
     oneOverZ: f32,
     oneOverZStep: f32,
+    depth: f32,
+    depthStep: f32,
+    lightAmount: f32,
+    lightAmountStep: f32,
 
     pub fn create(gradients: Gradients, minY: Vertex,maxY: Vertex, minYIndex: usize) Self {
         var yStart = @floatToInt(i32, @ceil(minY.pos.y));
@@ -38,6 +42,12 @@ pub const Edge = struct {
         var oneOverZ = gradients.oneOverZ[minYIndex] + gradients.oneOverZXStep * xPrestep + gradients.oneOverZYStep * yPrestep;
         var oneOverZStep = gradients.oneOverZYStep + gradients.oneOverZXStep * xStep;
 
+        var depth = gradients.depth[minYIndex] + gradients.depthXStep * xPrestep + gradients.depthYStep * yPrestep;
+        var depthStep = gradients.depthYStep + gradients.depthXStep * xStep;
+
+        var lightAmount = gradients.lightAmount[minYIndex] + gradients.lightAmountXStep * xPrestep + gradients.lightAmountYStep * yPrestep;            
+        var lightAmountStep = gradients.lightAmountYStep + gradients.lightAmountXStep * xStep;
+
         return Self {
             .x = x,
             .xStep = xStep,
@@ -49,6 +59,10 @@ pub const Edge = struct {
             .texCoordYStep = texCoordYStep,
             .oneOverZ = oneOverZ,
             .oneOverZStep = oneOverZStep,
+            .depth = depth,
+            .depthStep = depthStep,
+            .lightAmount = lightAmount,
+            .lightAmountStep = lightAmountStep,
         };
     }
 
@@ -57,5 +71,7 @@ pub const Edge = struct {
         self.texCoordX += self.texCoordXStep;
         self.texCoordY += self.texCoordYStep;
         self.oneOverZ += self.oneOverZStep;
+        self.depth += self.depthStep;
+        self.lightAmount += self.lightAmountStep;
     }
 };
